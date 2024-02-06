@@ -13,9 +13,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
-// app.use("/test", (req, res) => {
-//   res.send("Hello world!");
-// });
+app.use("/test", (req, res) => {
+  res.send("Hello world!");
+});
 
 
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
@@ -30,6 +30,16 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
     path: "config/.env",
   });
 }
+
+const combinedFolderPath = path.join(__dirname, 'front');
+
+// Serve static files from the combined folder
+app.use(express.static(path.join(combinedFolderPath, 'build')));
+
+// Route all requests to React app (handle client-side routing)
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(combinedFolderPath, 'build', 'index.html'));
+});
 
 // import routes
 const user = require("./controller/user");
@@ -55,6 +65,8 @@ app.use("/api/v2/event", event);
 app.use("/api/v2/coupon", coupon);
 app.use("/api/v2/payment", payment);
 app.use("/api/v2/withdraw", withdraw);
+
+
 
 // it's for ErrorHandling
 app.use(ErrorHandler);
